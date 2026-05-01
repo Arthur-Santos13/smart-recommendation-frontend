@@ -3,6 +3,17 @@ import { CommonModule } from '@angular/common';
 import { RecommendationService } from '../../services/recommendation.service';
 import { UserSessionService } from '../../services/user-session.service';
 import { RecommendationItem } from '../../models/recommendation.model';
+import { ItemCategory } from '../../models/item.model';
+
+export const REC_CATEGORIES: { value: ItemCategory | ''; label: string }[] = [
+    { value: '', label: 'All' },
+    { value: 'technology', label: 'Technology' },
+    { value: 'science', label: 'Science' },
+    { value: 'business', label: 'Business' },
+    { value: 'health', label: 'Health' },
+    { value: 'education', label: 'Education' },
+    { value: 'general', label: 'General' },
+];
 
 @Component({
     selector: 'app-recommendations',
@@ -14,11 +25,14 @@ export class RecommendationsComponent implements OnInit {
     private readonly recommendationService = inject(RecommendationService);
     private readonly session = inject(UserSessionService);
 
+    readonly categories = REC_CATEGORIES;
+
     recommendations = signal<RecommendationItem[]>([]);
     loading = signal(true);
     error = signal<string | null>(null);
     total = signal(0);
     hasUser = signal(false);
+    selectedCategory = signal<ItemCategory | ''>('');
 
     ngOnInit(): void {
         const userId = this.session.getUserId();
@@ -31,10 +45,20 @@ export class RecommendationsComponent implements OnInit {
         this.loadRecommendations(userId);
     }
 
+    selectCategory(category: ItemCategory | ''): void {
+        this.selectedCategory.set(category);
+        const userId = this.session.getUserId();
+        if (userId) this.loadRecommendations(userId);
+    }
+
     private loadRecommendations(userId: string): void {
         this.loading.set(true);
         this.error.set(null);
-        this.recommendationService.getForUser(userId, { top_n: 20 }).subscribe({
+        const params = {
+            top_n: 20,
+            ...(this.selectedCategory() ? { category: this.selectedCategory() } : {}),
+        };
+        this.recommendationService.getForUser(userId, params).subscribe({
             next: (res) => {
                 this.recommendations.set(res.recommendations);
                 this.total.set(res.total);
