@@ -98,7 +98,12 @@ export class ItemsComponent implements OnInit {
 
     onItemClick(itemId: string): void {
         this.interactionService.trackEvent(itemId, 'click');
+        this.interactedItemId.set(itemId);
+        setTimeout(() => this.interactedItemId.set(null), 1500);
     }
+
+    /** Tracks the last interacted item id for visual feedback. Cleared after 1.5 s. */
+    interactedItemId = signal<string | null>(null);
 
     retryLoad(): void {
         this.state.retryLoad();
