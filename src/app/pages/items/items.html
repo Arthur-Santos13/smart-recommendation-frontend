@@ -62,9 +62,13 @@
     } @else {
     <div class="items-grid">
         @for (item of sortedItems(); track item.id) {
-        <article class="item-card" (click)="onItemClick(item.id)">
+        <article class="item-card" [class.item-card--interacted]="interactedItemId() === item.id"
+            (click)="onItemClick(item.id)">
             <div class="item-card__thumb">
                 <span class="item-card__category-badge">{{ categoryLabel(item.category) }}</span>
+                @if (interactedItemId() === item.id) {
+                <span class="item-card__interacted-badge">✓ Saved</span>
+                }
             </div>
             <div class="item-card__body">
                 <h3 class="item-card__title">{{ item.title }}</h3>
