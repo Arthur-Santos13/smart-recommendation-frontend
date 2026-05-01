@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, ActivatedRoute } from '@angular/router';
 import { RecommendationService } from '../../services/recommendation.service';
 import { UserSessionService } from '../../services/user-session.service';
 import { RecommendationItem } from '../../models/recommendation.model';
@@ -24,6 +25,8 @@ export const REC_CATEGORIES: { value: ItemCategory | ''; label: string }[] = [
 export class RecommendationsComponent implements OnInit {
     private readonly recommendationService = inject(RecommendationService);
     private readonly session = inject(UserSessionService);
+    private readonly router = inject(Router);
+    private readonly route = inject(ActivatedRoute);
 
     readonly categories = REC_CATEGORIES;
 
@@ -42,13 +45,18 @@ export class RecommendationsComponent implements OnInit {
             return;
         }
         this.hasUser.set(true);
-        this.loadRecommendations(userId);
+        this.route.queryParams.subscribe((params) => {
+            const category = (params['category'] as ItemCategory) ?? '';
+            this.selectedCategory.set(category);
+            this.loadRecommendations(userId);
+        });
     }
 
     selectCategory(category: ItemCategory | ''): void {
-        this.selectedCategory.set(category);
-        const userId = this.session.getUserId();
-        if (userId) this.loadRecommendations(userId);
+        this.router.navigate([], {
+            queryParams: { category: category || null },
+            queryParamsHandling: 'merge',
+        });
     }
 
     private loadRecommendations(userId: string): void {
