@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, effect } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { UserSessionService } from '../../services/user-session.service';
@@ -10,18 +10,23 @@ import { UserService } from '../../services/user.service';
     templateUrl: './layout.html',
     styleUrl: './layout.scss',
 })
-export class LayoutComponent implements OnInit {
+export class LayoutComponent {
     private readonly session = inject(UserSessionService);
     private readonly userService = inject(UserService);
 
     activeUserName = signal<string | null>(null);
 
-    ngOnInit(): void {
-        const userId = this.session.getUserId();
-        if (!userId) return;
-        this.userService.getById(userId).subscribe({
-            next: (user) => this.activeUserName.set(user.name.split(' ')[0]),
-            error: () => this.activeUserName.set(null),
+    constructor() {
+        effect(() => {
+            const userId = this.session.userId();
+            if (!userId) {
+                this.activeUserName.set(null);
+                return;
+            }
+            this.userService.getById(userId).subscribe({
+                next: (user) => this.activeUserName.set(user.name.split(' ')[0]),
+                error: () => this.activeUserName.set(null),
+            });
         });
     }
 
