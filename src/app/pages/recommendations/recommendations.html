@@ -1,10 +1,62 @@
 <section class="recommendations-page">
     <div class="page-header">
         <h2 class="page-header__title">My Recommendations</h2>
-        <p class="page-header__subtitle">Items recommended based on your activity</p>
+        <p class="page-header__subtitle">
+            @if (hasUser() && !loading() && !error()) {
+            {{ total() }} items matched your profile
+            } @else {
+            Items recommended based on your activity
+            }
+        </p>
     </div>
-    <div class="recommendations-list">
-        <!-- Recommendations will be rendered here in phase 6 -->
-        <p class="placeholder-text">Your recommendations will appear here.</p>
+
+    @if (!hasUser()) {
+    <div class="rec-empty">
+        <span class="rec-empty__icon">👤</span>
+        <p class="rec-empty__title">No active session</p>
+        <p class="rec-empty__desc">Select a user profile to see personalised recommendations.</p>
     </div>
+    } @else if (loading()) {
+    <div class="rec-skeleton-list">
+        @for (n of [1,2,3,4,5,6]; track n) {
+        <div class="skeleton-row">
+            <div class="skeleton-row__badge"></div>
+            <div class="skeleton-row__body">
+                <div class="skeleton-row__line skeleton-row__line--long"></div>
+                <div class="skeleton-row__line skeleton-row__line--short"></div>
+            </div>
+            <div class="skeleton-row__score"></div>
+        </div>
+        }
+    </div>
+    } @else if (error()) {
+    <div class="rec-error">
+        <span class="rec-error__icon">⚠</span>
+        <p class="rec-error__message">{{ error() }}</p>
+    </div>
+    } @else if (recommendations().length === 0) {
+    <div class="rec-empty">
+        <span class="rec-empty__icon">🔍</span>
+        <p class="rec-empty__title">Nothing yet</p>
+        <p class="rec-empty__desc">Browse and interact with some items first so the engine can learn your taste.</p>
+    </div>
+    } @else {
+    <ul class="rec-list">
+        @for (item of recommendations(); track item.item_id) {
+        <li class="rec-card">
+            <div class="rec-card__left">
+                <span class="rec-card__badge">{{ categoryLabel(item.category) }}</span>
+                <p class="rec-card__reason">{{ item.reason }}</p>
+            </div>
+            <div class="rec-card__right">
+                <span class="rec-card__score-label">Match</span>
+                <div class="rec-card__score-bar">
+                    <div class="rec-card__score-fill" [style.width.%]="scorePercent(item.score)"></div>
+                </div>
+                <span class="rec-card__score-value">{{ scorePercent(item.score) }}%</span>
+            </div>
+        </li>
+        }
+    </ul>
+    }
 </section>
