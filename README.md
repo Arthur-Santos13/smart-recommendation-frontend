@@ -17,6 +17,8 @@ Angular 20 client for the [SmartRecommendation API](../smart-recommendation-api/
 - [Data Models](#data-models)
 - [Running Tests](#running-tests)
 - [Building for Production](#building-for-production)
+- [Docker](#docker)
+- [Project Roadmap](#project-roadmap)
 
 ---
 
@@ -95,9 +97,10 @@ DELETE /…      → api.delete<T>(path)
 Base URL is read from `environment.apiBaseUrl` (`http://localhost:8000/api/v1` by default).
 
 ### `UserSessionService`
-Persists the active user ID in `localStorage` under the key `smart_rec_user_id`.
+Persists the active user ID in `localStorage` under the key `smart_rec_user_id`. Exposes a reactive `userId` signal so any component can respond automatically when the session changes.
 
 ```typescript
+userId: Signal<string | null>  // reactive — updates on every set/clear
 getUserId(): string | null
 setUserId(id: string): void
 clearUserId(): void
@@ -335,7 +338,69 @@ Test coverage spans:
 ## Building for Production
 
 ```bash
-ng build
+# Standard production build
+npm run build:prod
+
+# Build + emit webpack stats JSON (for bundle analysis)
+npm run build:stats
+
+# Build and verify index.html is present in the output
+npm run build:validate
 ```
 
-Output is written to `dist/smart-recommendation-frontend/`. The build enables full AOT compilation, tree-shaking, and chunk splitting by default.
+Output is written to `dist/smart-recommendation-frontend/browser/`. The build enables full AOT compilation, tree-shaking, chunk splitting, critical CSS inlining, and font inlining by default.
+
+### Bundle budgets
+
+| Budget type | Warning | Error |
+|-------------|---------|-------|
+| Initial bundle | 400 kB | 800 kB |
+| Any component stylesheet | 13 kB | 20 kB |
+
+---
+
+## Docker
+
+The frontend ships as a two-stage Docker image: Node 22 compiles the Angular app, nginx 1.27 serves the static output.
+
+### Build the image
+
+```bash
+docker build -t smart-recommendation-frontend .
+```
+
+### Run the container
+
+```bash
+docker run -p 8080:80 smart-recommendation-frontend
+```
+
+Open `http://localhost:8080`. In production the container expects the API to be reachable at `/api/v1` (proxied by the same nginx or an upstream reverse proxy). To point at a different backend, override `environment.prod.ts` before building or mount a custom nginx config.
+
+### nginx highlights
+
+- Angular SPA fallback: all routes resolve to `index.html` via `try_files`
+- Content-hashed assets (`*.js`, `*.css`, fonts) are served with `Cache-Control: public, immutable` and a 1-year expiry
+- `index.html` itself is served with `no-store` to ensure users always receive the latest shell
+- Security headers: `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `X-XSS-Protection`
+
+---
+
+## Project Roadmap
+
+All 14 phases of the frontend roadmap are complete.
+
+- [x] **Phase 1 — Project Setup**: Angular 20 workspace, SCSS global tokens, dark theme, `ApiService`, environment files, `LayoutComponent` shell with sidebar nav
+- [x] **Phase 2 — Base API Integration**: `HttpClient` wired via `provideHttpClient`, `errorInterceptor` registered, base URL from `environment.apiBaseUrl`, all HTTP verbs on `ApiService`
+- [x] **Phase 3 — Domain Base (Users & Items)**: TypeScript models for `User`, `Item`, `UserEvent`, `RecommendationItem`; `UserService` and `ItemService` raw CRUD wrappers; `UserSessionService` with localStorage persistence
+- [x] **Phase 4 — Listing with Filters**: `ItemsComponent` paginated grid, category chip filter, A→Z / Z→A sort, `ItemStateService` with 3-min TTL cache and in-flight deduplication
+- [x] **Phase 5 — User Interactions**: `SelectProfileComponent` profile picker, `InteractionService` fire-and-forget event tracking (`view` / `click`), session stored in localStorage
+- [x] **Phase 6 — Recommendations Page**: `RecommendationsComponent`, `RecommendationStateService` with 5-min TTL cache, loading skeleton, error state, empty state
+- [x] **Phase 7 — Recommendation Filters**: Category chip bar on recommendations page, filter state reflected in `state.selectedCategory()`, cache keyed by `userId:category`
+- [x] **Phase 8 — Explainability**: `reasonTypeOf()` and `extractReasonTitle()` classify each recommendation as `'similar'` or `'activity'`; distinct icons and explanation copy per type
+- [x] **Phase 9 — UX & Feedback**: Loading skeletons, error banners with retry, empty states with CTAs, card interaction highlight (1.5 s pulse), per-category gradient thumbnails with emoji icons
+- [x] **Phase 10 — State & Optimisations**: `computed()` signals for derived values, `effect()` for side-effect tracking, `invalidateAll()` on `ItemStateService`, `forceLoad()` / `retryLoad()` on `RecommendationStateService`
+- [x] **Phase 11 — Full Integration**: Interaction → recommendation feedback loop wired end-to-end; `invalidateUser()` on success; `pendingRefresh` signal; refresh banner on recommendations page; inline CRUD modals for items and users
+- [x] **Phase 12 — Tests**: Jasmine unit tests for all services (`UserSessionService`, `ItemStateService`, `RecommendationStateService`, `InteractionService`) and page components (`RecommendationsComponent`, `ItemsComponent`); 77 specs, all passing
+- [x] **Phase 13 — Technical README**: Architecture overview, API integration contract, user interaction flow diagram, state management strategy, HTTP error table, data models, test coverage map
+- [x] **Phase 14 — Production Build & Final Documentation**: Production `angular.json` configuration with critical CSS inlining and font inlining, `.browserslistrc` for modern-only targets, two-stage Docker image with nginx, bundle budgets, `build:prod` / `build:validate` scripts, final README with roadmap checklist

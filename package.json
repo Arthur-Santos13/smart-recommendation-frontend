@@ -5,8 +5,12 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:prod": "ng build --configuration production",
+    "build:stats": "ng build --configuration production --stats-json",
+    "build:validate": "npm run build:prod && node -e \"const fs=require('fs');const p='dist/smart-recommendation-frontend/browser';if(!fs.existsSync(p+'/index.html'))throw new Error('index.html missing');console.log('Build validated: index.html present');\"",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:ci": "ng test --watch=false --browsers=ChromeHeadless"
   },
   "prettier": {
     "printWidth": 100,
