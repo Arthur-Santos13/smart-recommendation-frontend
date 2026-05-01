@@ -24,14 +24,14 @@
         @for (user of users(); track user.id) {
         <button class="profile-card" [class.profile-card--active]="activeUserId() === user.id"
             (click)="selectUser(user)">
-            <div class="profile-card__avatar">
-                {{ initials(user.name) }}
+            <div class="profile-card__avatar" [class]="'profile-card__avatar ' + persona(user.email).colorClass">
+                <span class="profile-card__icon">{{ persona(user.email).icon }}</span>
                 @if (activeUserId() === user.id) {
                 <span class="profile-card__active-badge">✓</span>
                 }
             </div>
             <p class="profile-card__name">{{ user.name }}</p>
-            <p class="profile-card__email">{{ user.email }}</p>
+            <span class="profile-card__persona">{{ persona(user.email).label }}</span>
         </button>
         }
     </div>

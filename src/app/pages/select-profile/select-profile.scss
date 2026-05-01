@@ -39,18 +39,39 @@
 
     &__avatar {
         position: relative;
-        width: 64px;
-        height: 64px;
+        width: 68px;
+        height: 68px;
         border-radius: 50%;
-        background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: #fff;
-        letter-spacing: 0.02em;
         flex-shrink: 0;
+
+        // Persona colour variants
+        &.avatar--tech {
+            background: linear-gradient(135deg, #1e3a5f, #2563eb);
+        }
+
+        &.avatar--business {
+            background: linear-gradient(135deg, #3b1f5e, #9b44fc);
+        }
+
+        &.avatar--health {
+            background: linear-gradient(135deg, #064e3b, #10b981);
+        }
+
+        &.avatar--generalist {
+            background: linear-gradient(135deg, #7c2d12, #f59e0b);
+        }
+
+        &.avatar--default {
+            background: linear-gradient(135deg, #374151, #6b7280);
+        }
+    }
+
+    &__icon {
+        font-size: 1.7rem;
+        line-height: 1;
     }
 
     &__active-badge {
@@ -77,11 +98,12 @@
         margin: 0;
     }
 
-    &__email {
-        font-size: 0.75rem;
+    &__persona {
+        font-size: 0.72rem;
+        font-weight: 500;
         color: var(--color-text-muted);
-        margin: 0;
-        word-break: break-all;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
     }
 }
 

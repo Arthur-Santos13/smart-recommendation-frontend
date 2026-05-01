@@ -5,6 +5,29 @@ import { UserService } from '../../services/user.service';
 import { UserSessionService } from '../../services/user-session.service';
 import { User } from '../../models/user.model';
 
+interface PersonaInfo {
+    label: string;
+    icon: string;
+    colorClass: string;
+}
+
+const PERSONA_MAP: Record<string, PersonaInfo> = {
+    'alice@example.com': { label: 'Tech Enthusiast', icon: '💻', colorClass: 'avatar--tech' },
+    'bruno@example.com': { label: 'Tech Enthusiast', icon: '💻', colorClass: 'avatar--tech' },
+    'carlos@example.com': { label: 'Tech Enthusiast', icon: '💻', colorClass: 'avatar--tech' },
+    'diana@example.com': { label: 'Business Analyst', icon: '📊', colorClass: 'avatar--business' },
+    'eduardo@example.com': { label: 'Business Analyst', icon: '📊', colorClass: 'avatar--business' },
+    'fernanda@example.com': { label: 'Business Analyst', icon: '📊', colorClass: 'avatar--business' },
+    'gabriel@example.com': { label: 'Health Seeker', icon: '🏃', colorClass: 'avatar--health' },
+    'helena@example.com': { label: 'Health Seeker', icon: '🏃', colorClass: 'avatar--health' },
+    'igor@example.com': { label: 'Health Seeker', icon: '🏃', colorClass: 'avatar--health' },
+    'julia@example.com': { label: 'Generalist', icon: '🌐', colorClass: 'avatar--generalist' },
+    'klaus@example.com': { label: 'Generalist', icon: '🌐', colorClass: 'avatar--generalist' },
+    'larissa@example.com': { label: 'Generalist', icon: '🌐', colorClass: 'avatar--generalist' },
+};
+
+const DEFAULT_PERSONA: PersonaInfo = { label: 'User', icon: '👤', colorClass: 'avatar--default' };
+
 @Component({
     selector: 'app-select-profile',
     imports: [CommonModule],
@@ -41,12 +64,7 @@ export class SelectProfileComponent implements OnInit {
         this.router.navigate(['/recommendations']);
     }
 
-    initials(name: string): string {
-        return name
-            .split(' ')
-            .slice(0, 2)
-            .map((n) => n[0])
-            .join('')
-            .toUpperCase();
+    persona(email: string): PersonaInfo {
+        return PERSONA_MAP[email] ?? DEFAULT_PERSONA;
     }
 }
