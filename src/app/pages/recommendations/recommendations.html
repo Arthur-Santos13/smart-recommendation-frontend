@@ -10,6 +10,17 @@
         </p>
     </div>
 
+    @if (hasUser()) {
+    <div class="rec-filter-bar">
+        @for (cat of categories; track cat.value) {
+        <button class="rec-filter-chip" [class.rec-filter-chip--active]="selectedCategory() === cat.value"
+            (click)="selectCategory(cat.value)">
+            {{ cat.label }}
+        </button>
+        }
+    </div>
+    }
+
     @if (!hasUser()) {
     <div class="rec-empty">
         <span class="rec-empty__icon">👤</span>
