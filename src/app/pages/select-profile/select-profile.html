@@ -1,7 +1,10 @@
 <section class="select-profile-page">
     <div class="page-header">
-        <h2 class="page-header__title">Who's watching?</h2>
-        <p class="page-header__subtitle">Choose a profile to get personalised recommendations</p>
+        <div>
+            <h2 class="page-header__title">Who's watching?</h2>
+            <p class="page-header__subtitle">Choose a profile to get personalised recommendations</p>
+        </div>
+        <button class="btn btn--primary" (click)="openCreateModal()">+ New User</button>
     </div>
 
     @if (loading()) {
@@ -22,18 +25,85 @@
     } @else {
     <div class="profile-grid">
         @for (user of users(); track user.id) {
-        <button class="profile-card" [class.profile-card--active]="activeUserId() === user.id"
-            (click)="selectUser(user)">
-            <div class="profile-card__avatar" [class]="'profile-card__avatar ' + persona(user.email).colorClass">
-                <span class="profile-card__icon">{{ persona(user.email).icon }}</span>
-                @if (activeUserId() === user.id) {
-                <span class="profile-card__active-badge">✓</span>
-                }
+        <div class="profile-card-wrap">
+            <button class="profile-card" [class.profile-card--active]="activeUserId() === user.id"
+                (click)="selectUser(user)">
+                <div class="profile-card__avatar" [class]="'profile-card__avatar ' + persona(user.email).colorClass">
+                    <span class="profile-card__icon">{{ persona(user.email).icon }}</span>
+                    @if (activeUserId() === user.id) {
+                    <span class="profile-card__active-badge">✓</span>
+                    }
+                </div>
+                <p class="profile-card__name">{{ user.name }}</p>
+                <span class="profile-card__persona">{{ persona(user.email).label }}</span>
+            </button>
+            <div class="profile-card-wrap__actions">
+                <button class="profile-action-btn profile-action-btn--edit" title="Edit user"
+                    (click)="openEditModal(user, $event)">✏️</button>
+                <button class="profile-action-btn profile-action-btn--delete" title="Delete user"
+                    (click)="openDeleteConfirm(user, $event)">🗑️</button>
             </div>
-            <p class="profile-card__name">{{ user.name }}</p>
-            <span class="profile-card__persona">{{ persona(user.email).label }}</span>
-        </button>
+        </div>
         }
     </div>
     }
 </section>
+
+<!-- ── Create / Edit Modal ─────────────────────────────────────────────────── -->
+@if (showCreateModal() || showEditModal()) {
+<div class="modal-overlay" (click)="closeModals()">
+    <div class="modal modal--sm" (click)="$event.stopPropagation()">
+        <div class="modal__header">
+            <h3 class="modal__title">{{ showCreateModal() ? 'New User' : 'Edit User' }}</h3>
+            <button class="modal__close" (click)="closeModals()">✕</button>
+        </div>
+        <div class="modal__body">
+            @if (modalError()) {
+            <p class="modal__error">{{ modalError() }}</p>
+            }
+            <div class="form-field">
+                <label class="form-field__label">Name *</label>
+                <input class="form-field__input" type="text" placeholder="Full name" [ngModel]="userForm().name"
+                    (ngModelChange)="updateForm('name', $event)" />
+            </div>
+            <div class="form-field">
+                <label class="form-field__label">Email *</label>
+                <input class="form-field__input" type="email" placeholder="user@example.com"
+                    [ngModel]="userForm().email" (ngModelChange)="updateForm('email', $event)" />
+            </div>
+        </div>
+        <div class="modal__footer">
+            <button class="btn btn--ghost" (click)="closeModals()" [disabled]="modalSaving()">Cancel</button>
+            <button class="btn btn--primary" (click)="saveUser()" [disabled]="modalSaving()">
+                {{ modalSaving() ? 'Saving…' : 'Save' }}
+            </button>
+        </div>
+    </div>
+</div>
+}
+
+<!-- ── Delete Confirm Modal ───────────────────────────────────────────────── -->
+@if (showDeleteConfirm()) {
+<div class="modal-overlay" (click)="closeModals()">
+    <div class="modal modal--sm" (click)="$event.stopPropagation()">
+        <div class="modal__header">
+            <h3 class="modal__title">Delete User</h3>
+            <button class="modal__close" (click)="closeModals()">✕</button>
+        </div>
+        <div class="modal__body">
+            @if (modalError()) {
+            <p class="modal__error">{{ modalError() }}</p>
+            }
+            <p class="modal__confirm-text">Are you sure you want to delete
+                <strong>{{ pendingDeleteName }}</strong>? This cannot be undone.
+            </p>
+        </div>
+        <div class="modal__footer">
+            <button class="btn btn--ghost" (click)="closeModals()" [disabled]="modalSaving()">Cancel</button>
+            <button class="btn btn--danger" (click)="confirmDelete()" [disabled]="modalSaving()">
+                {{ modalSaving() ? 'Deleting…' : 'Delete' }}
+            </button>
+        </div>
+    </div>
+</div>
+}

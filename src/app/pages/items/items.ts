@@ -1,9 +1,11 @@
 import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ItemStateService } from '../../services/item-state.service';
+import { ItemService } from '../../services/item.service';
 import { InteractionService } from '../../services/interaction.service';
-import { ItemCategory } from '../../models/item.model';
+import { Item, ItemCategory } from '../../models/item.model';
 
 export const ITEM_CATEGORIES: { value: ItemCategory | ''; label: string }[] = [
     { value: '', label: 'All' },
@@ -24,12 +26,13 @@ export const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 
 @Component({
     selector: 'app-items',
-    imports: [CommonModule],
+    imports: [CommonModule, FormsModule],
     templateUrl: './items.html',
     styleUrl: './items.scss',
 })
 export class ItemsComponent implements OnInit {
     readonly state = inject(ItemStateService);
+    private readonly itemService = inject(ItemService);
     private readonly interactionService = inject(InteractionService);
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
@@ -111,5 +114,130 @@ export class ItemsComponent implements OnInit {
 
     categoryLabel(category: string): string {
         return category.charAt(0).toUpperCase() + category.slice(1);
+    }
+
+    categoryIcon(category: string): string {
+        const map: Record<string, string> = {
+            technology: '💻',
+            science: '🔬',
+            business: '📈',
+            health: '🏃',
+            education: '📚',
+            general: '🌐',
+        };
+        return map[category] ?? '📄';
+    }
+
+    // ── CRUD modal state ──────────────────────────────────────────────────────
+    readonly itemCategories = ITEM_CATEGORIES.filter((c) => c.value !== '');
+
+    showCreateModal = signal(false);
+    showEditModal = signal(false);
+    showDeleteConfirm = signal(false);
+    modalSaving = signal(false);
+    modalError = signal<string | null>(null);
+
+    itemForm = signal<{ title: string; description: string; category: ItemCategory; tags: string }>({
+        title: '',
+        description: '',
+        category: 'general',
+        tags: '',
+    });
+
+    private pendingDeleteItem: Item | null = null;
+    private editingItemId: string | null = null;
+
+    openCreateModal(): void {
+        this.itemForm.set({ title: '', description: '', category: 'general', tags: '' });
+        this.modalError.set(null);
+        this.showCreateModal.set(true);
+    }
+
+    openEditModal(item: Item, event: Event): void {
+        event.stopPropagation();
+        this.editingItemId = item.id;
+        this.itemForm.set({
+            title: item.title,
+            description: item.description ?? '',
+            category: item.category,
+            tags: item.tags ?? '',
+        });
+        this.modalError.set(null);
+        this.showEditModal.set(true);
+    }
+
+    openDeleteConfirm(item: Item, event: Event): void {
+        event.stopPropagation();
+        this.pendingDeleteItem = item;
+        this.modalError.set(null);
+        this.showDeleteConfirm.set(true);
+    }
+
+    closeModals(): void {
+        this.showCreateModal.set(false);
+        this.showEditModal.set(false);
+        this.showDeleteConfirm.set(false);
+        this.modalError.set(null);
+        this.pendingDeleteItem = null;
+        this.editingItemId = null;
+    }
+
+    saveItem(): void {
+        const form = this.itemForm();
+        if (!form.title.trim()) {
+            this.modalError.set('Title is required.');
+            return;
+        }
+        this.modalSaving.set(true);
+        this.modalError.set(null);
+
+        const payload = {
+            title: form.title.trim(),
+            description: form.description.trim() || null,
+            category: form.category,
+            tags: form.tags.trim() || null,
+        };
+
+        const call$ = this.showCreateModal()
+            ? this.itemService.create(payload)
+            : this.itemService.update(this.editingItemId!, payload);
+
+        call$.subscribe({
+            next: () => {
+                this.modalSaving.set(false);
+                this.closeModals();
+                this.state.invalidateAll();
+            },
+            error: (err) => {
+                this.modalError.set(err.message ?? 'Operation failed.');
+                this.modalSaving.set(false);
+            },
+        });
+    }
+
+    confirmDelete(): void {
+        if (!this.pendingDeleteItem) return;
+        const id = this.pendingDeleteItem.id;
+        this.modalSaving.set(true);
+        this.modalError.set(null);
+        this.itemService.delete(id).subscribe({
+            next: () => {
+                this.modalSaving.set(false);
+                this.closeModals();
+                this.state.invalidateAll();
+            },
+            error: (err) => {
+                this.modalError.set(err.message ?? 'Delete failed.');
+                this.modalSaving.set(false);
+            },
+        });
+    }
+
+    get pendingDeleteTitle(): string {
+        return this.pendingDeleteItem?.title ?? '';
+    }
+
+    updateForm(field: string, value: string): void {
+        this.itemForm.update((f) => ({ ...f, [field]: value }));
     }
 }

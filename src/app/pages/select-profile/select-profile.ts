@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { UserSessionService } from '../../services/user-session.service';
@@ -30,7 +31,7 @@ const DEFAULT_PERSONA: PersonaInfo = { label: 'User', icon: '👤', colorClass: 
 
 @Component({
     selector: 'app-select-profile',
-    imports: [CommonModule],
+    imports: [CommonModule, FormsModule],
     templateUrl: './select-profile.html',
     styleUrl: './select-profile.scss',
 })
@@ -46,6 +47,12 @@ export class SelectProfileComponent implements OnInit {
 
     ngOnInit(): void {
         this.activeUserId.set(this.session.getUserId());
+        this.loadUsers();
+    }
+
+    private loadUsers(): void {
+        this.loading.set(true);
+        this.error.set(null);
         this.userService.getAll().subscribe({
             next: (users) => {
                 this.users.set(users.filter((u) => u.is_active));
@@ -66,5 +73,106 @@ export class SelectProfileComponent implements OnInit {
 
     persona(email: string): PersonaInfo {
         return PERSONA_MAP[email] ?? DEFAULT_PERSONA;
+    }
+
+    // ── CRUD modal state ──────────────────────────────────────────────────────
+    showCreateModal = signal(false);
+    showEditModal = signal(false);
+    showDeleteConfirm = signal(false);
+    modalSaving = signal(false);
+    modalError = signal<string | null>(null);
+
+    userForm = signal<{ name: string; email: string }>({ name: '', email: '' });
+
+    private pendingDeleteUser: User | null = null;
+    private editingUserId: string | null = null;
+
+    openCreateModal(): void {
+        this.userForm.set({ name: '', email: '' });
+        this.modalError.set(null);
+        this.showCreateModal.set(true);
+    }
+
+    openEditModal(user: User, event: Event): void {
+        event.stopPropagation();
+        this.editingUserId = user.id;
+        this.userForm.set({ name: user.name, email: user.email });
+        this.modalError.set(null);
+        this.showEditModal.set(true);
+    }
+
+    openDeleteConfirm(user: User, event: Event): void {
+        event.stopPropagation();
+        this.pendingDeleteUser = user;
+        this.modalError.set(null);
+        this.showDeleteConfirm.set(true);
+    }
+
+    closeModals(): void {
+        this.showCreateModal.set(false);
+        this.showEditModal.set(false);
+        this.showDeleteConfirm.set(false);
+        this.modalError.set(null);
+        this.pendingDeleteUser = null;
+        this.editingUserId = null;
+    }
+
+    saveUser(): void {
+        const form = this.userForm();
+        if (!form.name.trim() || !form.email.trim()) {
+            this.modalError.set('Name and email are required.');
+            return;
+        }
+        this.modalSaving.set(true);
+        this.modalError.set(null);
+
+        const payload = { name: form.name.trim(), email: form.email.trim() };
+
+        const call$ = this.showCreateModal()
+            ? this.userService.create(payload)
+            : this.userService.update(this.editingUserId!, payload);
+
+        call$.subscribe({
+            next: () => {
+                this.modalSaving.set(false);
+                this.closeModals();
+                this.loadUsers();
+            },
+            error: (err) => {
+                this.modalError.set(err.message ?? 'Operation failed.');
+                this.modalSaving.set(false);
+            },
+        });
+    }
+
+    confirmDelete(): void {
+        if (!this.pendingDeleteUser) return;
+        const id = this.pendingDeleteUser.id;
+        this.modalSaving.set(true);
+        this.modalError.set(null);
+        this.userService.delete(id).subscribe({
+            next: () => {
+                this.modalSaving.set(false);
+                // If active user was deleted, clear session
+                if (this.session.getUserId() === id) {
+                    this.session.clearUserId();
+                    this.activeUserId.set(null);
+                }
+                this.closeModals();
+                this.loadUsers();
+            },
+            error: (err) => {
+                this.modalError.set(err.message ?? 'Delete failed.');
+                this.modalSaving.set(false);
+            },
+        });
+    }
+
+    get pendingDeleteName(): string {
+        return this.pendingDeleteUser?.name ?? '';
+    }
+
+    updateForm(field: string, value: string): void {
+        this.userForm.update((f) => ({ ...f, [field]: value }));
     }
 }

@@ -87,4 +87,13 @@ export class ItemStateService {
             this.load(this.lastParams.page, this.lastParams.limit, this.lastParams.category);
         }
     }
+
+    /** Clears the entire cache and reloads the last requested page. Call after any mutation. */
+    invalidateAll(): void {
+        this.cache.clear();
+        this.inflightKey = null;
+        if (this.lastParams) {
+            this.load(this.lastParams.page, this.lastParams.limit, this.lastParams.category);
+        }
+    }
 }
