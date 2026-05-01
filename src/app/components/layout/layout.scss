@@ -1,0 +1,70 @@
+.shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: var(--header-height);
+    background-color: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+
+    &__inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 100%;
+        max-width: var(--content-max-width);
+        margin: 0 auto;
+        padding: 0 var(--spacing-lg);
+    }
+
+    &__brand {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--color-primary);
+    }
+
+    &__brand-icon {
+        font-size: 1.4rem;
+    }
+
+    &__nav {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+
+    &__nav-link {
+        text-decoration: none;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: var(--color-text-secondary);
+        padding: var(--spacing-xs) var(--spacing-sm);
+        border-radius: var(--radius-sm);
+        transition: color 0.2s, background-color 0.2s;
+
+        &:hover {
+            color: var(--color-primary);
+            background-color: var(--color-primary-light);
+        }
+
+        &--active {
+            color: var(--color-primary);
+            background-color: var(--color-primary-light);
+        }
+    }
+}
+
+.main-content {
+    flex: 1;
+    background-color: var(--color-bg);
+}
