@@ -1,10 +1,46 @@
 <section class="items-page">
     <div class="page-header">
-        <h2 class="page-header__title">Items</h2>
-        <p class="page-header__subtitle">Browse all available items</p>
+        <h2 class="page-header__title">Browse Items</h2>
+        <p class="page-header__subtitle">Explore all available content</p>
     </div>
+
+    @if (loading()) {
+    <div class="items-skeleton">
+        @for (n of [1,2,3,4,5,6,7,8]; track n) {
+        <div class="skeleton-card"></div>
+        }
+    </div>
+    } @else if (error()) {
+    <div class="items-error">
+        <span class="items-error__icon">⚠</span>
+        <p class="items-error__message">{{ error() }}</p>
+    </div>
+    } @else if (items().length === 0) {
+    <div class="items-empty">
+        <p>No items found.</p>
+    </div>
+    } @else {
     <div class="items-grid">
-        <!-- Items will be rendered here in phase 3/4 -->
-        <p class="placeholder-text">Items will be listed here.</p>
+        @for (item of items(); track item.id) {
+        <article class="item-card">
+            <div class="item-card__thumb">
+                <span class="item-card__category-badge">{{ categoryLabel(item.category) }}</span>
+            </div>
+            <div class="item-card__body">
+                <h3 class="item-card__title">{{ item.title }}</h3>
+                @if (item.description) {
+                <p class="item-card__desc">{{ item.description }}</p>
+                }
+                @if (item.tags) {
+                <div class="item-card__tags">
+                    @for (tag of item.tags.split(','); track tag) {
+                    <span class="item-card__tag">{{ tag.trim() }}</span>
+                    }
+                </div>
+                }
+            </div>
+        </article>
+        }
     </div>
+    }
 </section>
