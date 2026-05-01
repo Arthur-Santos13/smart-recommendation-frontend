@@ -14,7 +14,10 @@ export class ItemService {
     private readonly api = inject(ApiService);
 
     getAll(params?: ItemListParams): Observable<PaginatedItems> {
-        return this.api.get<PaginatedItems>('/items/', params as Record<string, string | number | boolean>);
+        const cleaned = Object.fromEntries(
+            Object.entries(params ?? {}).filter(([, v]) => v !== undefined && v !== '')
+        ) as Record<string, string | number | boolean>;
+        return this.api.get<PaginatedItems>('/items/', cleaned);
     }
 
     getById(id: string): Observable<Item> {
