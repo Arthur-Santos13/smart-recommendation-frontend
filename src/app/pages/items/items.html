@@ -23,7 +23,7 @@
         </div>
     </div>
 
-    @if (loading()) {
+    @if (state.loading()) {
     <div class="items-skeleton">
         @for (n of [1,2,3,4,5,6,7,8,9,10,11,12]; track n) {
         <div class="skeleton-card">
@@ -37,14 +37,14 @@
         </div>
         }
     </div>
-    } @else if (error()) {
+    } @else if (state.error()) {
     <div class="items-error">
         <span class="items-error__icon">⚠️</span>
         <p class="items-error__title">Failed to load items</p>
-        <p class="items-error__message">{{ error() }}</p>
+        <p class="items-error__message">{{ state.error() }}</p>
         <button class="items-error__retry" (click)="retryLoad()">Try again</button>
     </div>
-    } @else if (items().length === 0) {
+    } @else if (state.items().length === 0) {
     <div class="items-empty">
         <span class="items-empty__icon">🔍</span>
         <p class="items-empty__title">No items found</p>
