@@ -119,6 +119,10 @@ export class ItemsComponent implements OnInit {
         this.interactionService.trackEvent(itemId, 'click');
     }
 
+    retryLoad(): void {
+        this.loadItems();
+    }
+
     categoryLabel(category: string): string {
         return category.charAt(0).toUpperCase() + category.slice(1);
     }

@@ -39,8 +39,10 @@
     </div>
     } @else if (error()) {
     <div class="items-error">
-        <span class="items-error__icon">⚠</span>
+        <span class="items-error__icon">⚠️</span>
+        <p class="items-error__title">Failed to load items</p>
         <p class="items-error__message">{{ error() }}</p>
+        <button class="items-error__retry" (click)="retryLoad()">Try again</button>
     </div>
     } @else if (items().length === 0) {
     <div class="items-empty">
