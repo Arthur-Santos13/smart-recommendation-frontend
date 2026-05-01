@@ -274,4 +274,24 @@ $shimmer-gradient: linear-gradient(90deg,
         max-width: 360px;
         margin: 0;
     }
+
+    &__cta {
+        display: inline-block;
+        margin-top: var(--spacing-md);
+        padding: 0.5rem 1.5rem;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--color-primary);
+        background: transparent;
+        color: var(--color-primary);
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background 0.15s, color 0.15s;
+
+        &:hover {
+            background: var(--color-primary);
+            color: #fff;
+        }
+    }
 }
