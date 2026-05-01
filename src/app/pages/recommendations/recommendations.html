@@ -57,7 +57,21 @@
         <li class="rec-card">
             <div class="rec-card__left">
                 <span class="rec-card__badge">{{ categoryLabel(item.category) }}</span>
-                <p class="rec-card__reason">{{ item.reason }}</p>
+                <div class="rec-card__explanation"
+                    [class.rec-card__explanation--similar]="reasonTypeOf(item.reason) === 'similar'"
+                    [class.rec-card__explanation--activity]="reasonTypeOf(item.reason) === 'activity'">
+                    <span class="rec-card__explanation-icon">
+                        @if (reasonTypeOf(item.reason) === 'similar') { 🔗 } @else { 📊 }
+                    </span>
+                    <span class="rec-card__explanation-text">
+                        @if (reasonTypeOf(item.reason) === 'similar' && extractReasonTitle(item.reason)) {
+                        Recommended because you interacted with
+                        <strong>'{{ extractReasonTitle(item.reason) }}'</strong>
+                        } @else {
+                        Recommended based on your browsing activity
+                        }
+                    </span>
+                </div>
             </div>
             <div class="rec-card__right">
                 <span class="rec-card__score-label">Match</span>
