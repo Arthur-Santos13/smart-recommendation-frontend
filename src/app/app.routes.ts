@@ -24,6 +24,13 @@ export const routes: Routes = [
                         (m) => m.RecommendationsComponent
                     ),
             },
+            {
+                path: 'select-profile',
+                loadComponent: () =>
+                    import('./pages/select-profile/select-profile').then(
+                        (m) => m.SelectProfileComponent
+                    ),
+            },
         ],
     },
     { path: '**', redirectTo: 'home' },

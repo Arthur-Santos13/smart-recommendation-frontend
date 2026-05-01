@@ -1,0 +1,39 @@
+<section class="select-profile-page">
+    <div class="page-header">
+        <h2 class="page-header__title">Who's watching?</h2>
+        <p class="page-header__subtitle">Choose a profile to get personalised recommendations</p>
+    </div>
+
+    @if (loading()) {
+    <div class="profile-grid">
+        @for (n of [1,2,3,4,5,6]; track n) {
+        <div class="profile-skeleton">
+            <div class="profile-skeleton__avatar"></div>
+            <div class="profile-skeleton__name"></div>
+            <div class="profile-skeleton__email"></div>
+        </div>
+        }
+    </div>
+    } @else if (error()) {
+    <div class="profile-error">
+        <span>⚠</span>
+        <p>{{ error() }}</p>
+    </div>
+    } @else {
+    <div class="profile-grid">
+        @for (user of users(); track user.id) {
+        <button class="profile-card" [class.profile-card--active]="activeUserId() === user.id"
+            (click)="selectUser(user)">
+            <div class="profile-card__avatar">
+                {{ initials(user.name) }}
+                @if (activeUserId() === user.id) {
+                <span class="profile-card__active-badge">✓</span>
+                }
+            </div>
+            <p class="profile-card__name">{{ user.name }}</p>
+            <p class="profile-card__email">{{ user.email }}</p>
+        </button>
+        }
+    </div>
+    }
+</section>
