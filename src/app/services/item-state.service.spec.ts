@@ -78,7 +78,8 @@ describe('ItemStateService', () => {
         service.load(1, 12, '');
         service.load(1, 12, '');
 
-        httpMock.expectOne((r) => r.url.includes('/items/'));
+        const req = httpMock.expectOne((r) => r.url.includes('/items/'));
+        expect(req).toBeTruthy(); // only one request despite two calls
     });
 
     it('load() with different category does NOT hit cache', fakeAsync(() => {
@@ -89,7 +90,8 @@ describe('ItemStateService', () => {
         service.load(1, 12, 'science');
 
         // Different cache key — should fire a new request
-        httpMock.expectOne((r) => r.url.includes('/items/'));
+        const req = httpMock.expectOne((r) => r.url.includes('/items/'));
+        expect(req).toBeTruthy();
     }));
 
     it('retryLoad() evicts the cache entry and re-fetches', fakeAsync(() => {

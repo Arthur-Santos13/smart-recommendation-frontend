@@ -36,6 +36,7 @@ describe('InteractionService', () => {
         service.trackEvent('item-1', 'click');
 
         httpMock.expectNone(() => true);
+        expect(service).toBeTruthy(); // no HTTP request was made
     });
 
     it('trackEvent() posts to /user-events/ with correct payload', fakeAsync(() => {

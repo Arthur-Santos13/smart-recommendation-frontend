@@ -120,8 +120,7 @@ describe('RecommendationsComponent — DOM rendering', () => {
     afterEach(() => localStorage.clear());
 
     it('shows the no-session empty state when hasUser is false', () => {
-        component.hasUser = false;
-        fixture.detectChanges();
+        fixture.detectChanges(); // ngOnInit: no userId → hasUser=false
 
         const el: HTMLElement = fixture.nativeElement;
         expect(el.querySelector('.rec-empty')).toBeTruthy();
@@ -129,15 +128,17 @@ describe('RecommendationsComponent — DOM rendering', () => {
     });
 
     it('shows the loading skeleton while state.loading() is true', () => {
+        fixture.detectChanges(); // ngOnInit runs (hasUser=false, loading=false)
         component.hasUser = true;
         stateService.loading.set(true);
-        fixture.detectChanges();
+        fixture.detectChanges(); // re-render with updated state
 
         const el: HTMLElement = fixture.nativeElement;
         expect(el.querySelector('.rec-skeleton-list')).toBeTruthy();
     });
 
     it('shows the error block when state.error() is set', () => {
+        fixture.detectChanges();
         component.hasUser = true;
         stateService.loading.set(false);
         stateService.error.set('Network error');
@@ -149,6 +150,7 @@ describe('RecommendationsComponent — DOM rendering', () => {
     });
 
     it('shows the empty-recommendations state when list is empty', () => {
+        fixture.detectChanges();
         component.hasUser = true;
         stateService.loading.set(false);
         stateService.error.set(null);
@@ -160,6 +162,7 @@ describe('RecommendationsComponent — DOM rendering', () => {
     });
 
     it('renders a recommendation card for each item', () => {
+        fixture.detectChanges();
         component.hasUser = true;
         stateService.loading.set(false);
         stateService.error.set(null);
@@ -172,6 +175,7 @@ describe('RecommendationsComponent — DOM rendering', () => {
     });
 
     it('renders the score bar width as a percentage', () => {
+        fixture.detectChanges();
         component.hasUser = true;
         stateService.loading.set(false);
         stateService.error.set(null);
@@ -183,6 +187,7 @@ describe('RecommendationsComponent — DOM rendering', () => {
     });
 
     it('shows the refresh banner when pendingRefresh is true and there are results', () => {
+        fixture.detectChanges();
         component.hasUser = true;
         stateService.loading.set(false);
         stateService.error.set(null);
@@ -195,6 +200,7 @@ describe('RecommendationsComponent — DOM rendering', () => {
     });
 
     it('does NOT show the refresh banner when pendingRefresh is false', () => {
+        fixture.detectChanges();
         component.hasUser = true;
         stateService.loading.set(false);
         stateService.recommendations.set(MOCK_ITEMS);
@@ -205,6 +211,7 @@ describe('RecommendationsComponent — DOM rendering', () => {
     });
 
     it('renders the similar-type explanation icon (🔗) for similar reasons', () => {
+        fixture.detectChanges();
         component.hasUser = true;
         stateService.loading.set(false);
         stateService.error.set(null);
@@ -216,6 +223,7 @@ describe('RecommendationsComponent — DOM rendering', () => {
     });
 
     it('renders the activity-type explanation for activity-based reasons', () => {
+        fixture.detectChanges();
         component.hasUser = true;
         stateService.loading.set(false);
         stateService.error.set(null);
