@@ -86,4 +86,24 @@ export class RecommendationsComponent implements OnInit {
     categoryLabel(category: string): string {
         return category.charAt(0).toUpperCase() + category.slice(1);
     }
+
+    /**
+     * Classifies the reason string produced by the backend into a display type.
+     * 'similar'  → content-based: "Similar to 'X' that you interacted with"
+     * 'activity' → fallback:      "Based on your activity"
+     */
+    reasonTypeOf(reason: string): 'similar' | 'activity' {
+        return reason.toLowerCase().startsWith('similar to') ? 'similar' : 'activity';
+    }
+
+    /**
+     * Extracts the referenced item title from a 'similar' reason string.
+     * Returns null for fallback reasons.
+     * Input: "Similar to 'API com Java' that you interacted with"
+     * Output: "API com Java"
+     */
+    extractReasonTitle(reason: string): string | null {
+        const match = reason.match(/Similar to '(.+?)'/i);
+        return match ? match[1] : null;
+    }
 }
