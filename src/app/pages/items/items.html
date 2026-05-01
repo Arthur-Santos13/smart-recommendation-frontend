@@ -44,7 +44,18 @@
     </div>
     } @else if (items().length === 0) {
     <div class="items-empty">
-        <p>No items found for this category.</p>
+        <span class="items-empty__icon">🔍</span>
+        <p class="items-empty__title">No items found</p>
+        <p class="items-empty__desc">
+            @if (selectedCategory()) {
+            There are no items in the <strong>{{ categoryLabel(selectedCategory()) }}</strong> category yet.
+            } @else {
+            No items are available right now.
+            }
+        </p>
+        @if (selectedCategory()) {
+        <button class="items-empty__cta" (click)="selectCategory('')">Clear filter</button>
+        }
     </div>
     } @else {
     <div class="items-grid">
