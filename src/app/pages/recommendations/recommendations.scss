@@ -4,6 +4,37 @@
     margin: 0 auto;
 }
 
+// ── Category filter bar ───────────────────────────────────────────────────────
+.rec-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-lg);
+}
+
+.rec-filter-chip {
+    padding: 6px var(--spacing-md);
+    border-radius: 20px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+    &:hover {
+        border-color: var(--color-primary);
+        color: var(--color-text);
+    }
+
+    &--active {
+        background: var(--color-primary);
+        border-color: var(--color-primary);
+        color: #fff;
+    }
+}
+
 // ── Recommendation card list ──────────────────────────────────────────────────
 .rec-list {
     list-style: none;
