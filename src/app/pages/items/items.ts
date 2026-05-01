@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ItemService } from '../../services/item.service';
+import { InteractionService } from '../../services/interaction.service';
 import { Item, ItemCategory } from '../../models/item.model';
 
 export const ITEM_CATEGORIES: { value: ItemCategory | ''; label: string }[] = [
@@ -29,6 +30,7 @@ export const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 })
 export class ItemsComponent implements OnInit {
     private readonly itemService = inject(ItemService);
+    private readonly interactionService = inject(InteractionService);
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
 
@@ -102,12 +104,19 @@ export class ItemsComponent implements OnInit {
                 this.items.set(res.items);
                 this.total.set(res.total);
                 this.loading.set(false);
+                res.items.forEach((item) =>
+                    this.interactionService.trackEvent(item.id, 'view')
+                );
             },
             error: (err) => {
                 this.error.set(err.message ?? 'Failed to load items.');
                 this.loading.set(false);
             },
         });
+    }
+
+    onItemClick(itemId: string): void {
+        this.interactionService.trackEvent(itemId, 'click');
     }
 
     categoryLabel(category: string): string {
