@@ -115,3 +115,4 @@ export class RecommendationStateService {
             this.load(this.lastUserId, this.selectedCategory());
         }
     }
+}

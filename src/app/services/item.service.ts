@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { Item, PaginatedItems } from '../models/item.model';
+import { Item, ItemCreate, ItemUpdate, PaginatedItems } from '../models/item.model';
 
 export interface ItemListParams {
     page?: number;
@@ -22,5 +22,17 @@ export class ItemService {
 
     getById(id: string): Observable<Item> {
         return this.api.get<Item>(`/items/${id}`);
+    }
+
+    create(data: ItemCreate): Observable<Item> {
+        return this.api.post<Item>('/items/', data);
+    }
+
+    update(id: string, data: ItemUpdate): Observable<Item> {
+        return this.api.put<Item>(`/items/${id}`, data);
+    }
+
+    delete(id: string): Observable<void> {
+        return this.api.delete<void>(`/items/${id}`);
     }
 }

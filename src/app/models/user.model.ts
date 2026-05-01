@@ -4,3 +4,13 @@ export interface User {
     email: string;
     is_active: boolean;
 }
+
+export interface UserCreate {
+    name: string;
+    email: string;
+}
+
+export interface UserUpdate {
+    name?: string | null;
+    email?: string | null;
+}
