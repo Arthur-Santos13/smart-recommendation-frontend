@@ -1,0 +1,9 @@
+# Targets modern evergreen browsers only.
+# Allows the Angular build to emit ES2022 without legacy polyfills,
+# significantly reducing the initial bundle size.
+last 2 Chrome versions
+last 2 Edge versions
+last 2 Firefox versions
+last 2 Safari versions
+not dead
+not IE 11

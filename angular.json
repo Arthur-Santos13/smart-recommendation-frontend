@@ -44,6 +44,16 @@
               "outputPath": "dist/smart-recommendation-frontend",
               "namedChunks": false,
               "extractLicenses": true,
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": true
+                },
+                "fonts": {
+                  "inline": true
+                }
+              },
               "budgets": [
                 {
                   "type": "initial",
