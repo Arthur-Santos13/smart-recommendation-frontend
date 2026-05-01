@@ -86,7 +86,8 @@ describe('RecommendationStateService', () => {
         service.load('user-1', ''); // duplicate while first is in-flight
 
         // Only one HTTP call should be pending
-        httpMock.expectOne((r) => r.url.includes('/recommendations/user-1'));
+        const req = httpMock.expectOne((r) => r.url.includes('/recommendations/user-1'));
+        expect(req).toBeTruthy();
     });
 
     it('invalidateUser() sets pendingRefresh when userId matches active user', fakeAsync(() => {
