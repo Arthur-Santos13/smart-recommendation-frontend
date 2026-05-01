@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { RecommendationService } from '../../services/recommendation.service';
 import { UserSessionService } from '../../services/user-session.service';
 import { RecommendationItem } from '../../models/recommendation.model';
@@ -18,7 +18,7 @@ export const REC_CATEGORIES: { value: ItemCategory | ''; label: string }[] = [
 
 @Component({
     selector: 'app-recommendations',
-    imports: [CommonModule],
+    imports: [CommonModule, RouterLink],
     templateUrl: './recommendations.html',
     styleUrl: './recommendations.scss',
 })
@@ -81,6 +81,11 @@ export class RecommendationsComponent implements OnInit {
 
     scorePercent(score: number): number {
         return Math.round(score * 100);
+    }
+
+    retryLoad(): void {
+        const userId = this.session.getUserId();
+        if (userId) this.loadRecommendations(userId);
     }
 
     categoryLabel(category: string): string {

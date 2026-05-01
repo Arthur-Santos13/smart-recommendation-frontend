@@ -11,6 +11,15 @@
                 <a routerLink="/recommendations" routerLinkActive="header__nav-link--active"
                     class="header__nav-link">Recommendations</a>
             </nav>
+            <a routerLink="/select-profile" class="header__profile" title="Switch profile">
+                @if (activeUserName()) {
+                <span class="header__profile-avatar">{{ initials(activeUserName()!) }}</span>
+                <span class="header__profile-name">{{ activeUserName() }}</span>
+                } @else {
+                <span class="header__profile-avatar header__profile-avatar--empty">?</span>
+                <span class="header__profile-name">Select profile</span>
+                }
+            </a>
         </div>
     </header>
 

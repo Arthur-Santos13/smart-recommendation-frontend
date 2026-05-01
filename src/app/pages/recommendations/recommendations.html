@@ -42,14 +42,30 @@
     </div>
     } @else if (error()) {
     <div class="rec-error">
-        <span class="rec-error__icon">⚠</span>
+        <span class="rec-error__icon">⚠️</span>
+        <p class="rec-error__title">Failed to load recommendations</p>
         <p class="rec-error__message">{{ error() }}</p>
+        <button class="rec-error__retry" (click)="retryLoad()">Try again</button>
     </div>
     } @else if (recommendations().length === 0) {
     <div class="rec-empty">
-        <span class="rec-empty__icon">🔍</span>
-        <p class="rec-empty__title">Nothing yet</p>
-        <p class="rec-empty__desc">Browse and interact with some items first so the engine can learn your taste.</p>
+        <span class="rec-empty__icon">🎯</span>
+        <p class="rec-empty__title">
+            @if (selectedCategory()) { No {{ categoryLabel(selectedCategory()) }} recommendations } @else { Nothing here
+            yet }
+        </p>
+        <p class="rec-empty__desc">
+            @if (selectedCategory()) {
+            No recommendations found for this category. Try a different filter or browse more items.
+            } @else {
+            Browse and interact with some items first so the engine can learn your taste.
+            }
+        </p>
+        @if (selectedCategory()) {
+        <button class="rec-empty__cta" (click)="selectCategory('')">Show all categories</button>
+        } @else {
+        <a class="rec-empty__cta" routerLink="/items">Browse items</a>
+        }
     </div>
     } @else {
     <ul class="rec-list">

@@ -4,34 +4,64 @@
         <p class="page-header__subtitle">Explore all available content</p>
     </div>
 
-    <!-- Category filter -->
-    <div class="filter-bar">
-        @for (cat of categories; track cat.value) {
-        <button class="filter-chip" [class.filter-chip--active]="selectedCategory() === cat.value"
-            (click)="selectCategory(cat.value)">
-            {{ cat.label }}
-        </button>
-        }
+    <!-- Toolbar: category filter + sort -->
+    <div class="toolbar">
+        <div class="filter-bar">
+            @for (cat of categories; track cat.value) {
+            <button class="filter-chip" [class.filter-chip--active]="selectedCategory() === cat.value"
+                (click)="selectCategory(cat.value)">
+                {{ cat.label }}
+            </button>
+            }
+        </div>
+        <div class="sort-control">
+            <select class="sort-control__select" [value]="selectedSort()" (change)="setSort($any($event.target).value)">
+                @for (opt of sortOptions; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+                }
+            </select>
+        </div>
     </div>
 
     @if (loading()) {
     <div class="items-skeleton">
         @for (n of [1,2,3,4,5,6,7,8,9,10,11,12]; track n) {
-        <div class="skeleton-card"></div>
+        <div class="skeleton-card">
+            <div class="skeleton-card__thumb"></div>
+            <div class="skeleton-card__body">
+                <div class="skeleton-card__badge"></div>
+                <div class="skeleton-card__line skeleton-card__line--title"></div>
+                <div class="skeleton-card__line skeleton-card__line--desc"></div>
+                <div class="skeleton-card__line skeleton-card__line--desc skeleton-card__line--short"></div>
+            </div>
+        </div>
         }
     </div>
     } @else if (error()) {
     <div class="items-error">
-        <span class="items-error__icon">⚠</span>
+        <span class="items-error__icon">⚠️</span>
+        <p class="items-error__title">Failed to load items</p>
         <p class="items-error__message">{{ error() }}</p>
+        <button class="items-error__retry" (click)="retryLoad()">Try again</button>
     </div>
     } @else if (items().length === 0) {
     <div class="items-empty">
-        <p>No items found for this category.</p>
+        <span class="items-empty__icon">🔍</span>
+        <p class="items-empty__title">No items found</p>
+        <p class="items-empty__desc">
+            @if (selectedCategory()) {
+            There are no items in the <strong>{{ categoryLabel(selectedCategory()) }}</strong> category yet.
+            } @else {
+            No items are available right now.
+            }
+        </p>
+        @if (selectedCategory()) {
+        <button class="items-empty__cta" (click)="selectCategory('')">Clear filter</button>
+        }
     </div>
     } @else {
     <div class="items-grid">
-        @for (item of items(); track item.id) {
+        @for (item of sortedItems(); track item.id) {
         <article class="item-card" (click)="onItemClick(item.id)">
             <div class="item-card__thumb">
                 <span class="item-card__category-badge">{{ categoryLabel(item.category) }}</span>
@@ -51,6 +81,16 @@
             </div>
         </article>
         }
+    </div>
+
+    <div class="pagination">
+        <button class="btn btn--outline btn--sm" [disabled]="!hasPrev()" (click)="goToPage(currentPage() - 1)">
+            ← Prev
+        </button>
+        <span class="pagination__info">{{ currentPage() }} / {{ totalPages() }}</span>
+        <button class="btn btn--outline btn--sm" [disabled]="!hasNext()" (click)="goToPage(currentPage() + 1)">
+            Next →
+        </button>
     </div>
     }
 </section>
