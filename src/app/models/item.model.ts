@@ -6,6 +6,20 @@ export type ItemCategory =
     | 'education'
     | 'general';
 
+export interface ItemCreate {
+    title: string;
+    description?: string | null;
+    category: ItemCategory;
+    tags?: string | null;
+}
+
+export interface ItemUpdate {
+    title?: string | null;
+    description?: string | null;
+    category?: ItemCategory | null;
+    tags?: string | null;
+}
+
 export interface Item {
     id: string;
     title: string;

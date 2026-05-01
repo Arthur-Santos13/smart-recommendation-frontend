@@ -20,6 +20,8 @@ export class RecommendationStateService {
     error = signal<string | null>(null);
     total = signal(0);
     selectedCategory = signal<ItemCategory | ''>('');
+    /** True when the user has interacted with items since the last fetch. */
+    pendingRefresh = signal(false);
 
     private lastUserId: string | null = null;
 
@@ -51,6 +53,9 @@ export class RecommendationStateService {
         const prefix = `${userId}:`;
         for (const key of this.cache.keys()) {
             if (key.startsWith(prefix)) this.cache.delete(key);
+        }
+        if (this.lastUserId === userId) {
+            this.pendingRefresh.set(true);
         }
     }
 
@@ -85,6 +90,7 @@ export class RecommendationStateService {
                     this.recommendations.set(res.recommendations);
                     this.total.set(res.total);
                     this.loading.set(false);
+                    this.pendingRefresh.set(false);
                     this.inflightKey = null;
                 },
                 error: (err) => {
@@ -97,6 +103,15 @@ export class RecommendationStateService {
 
     retryLoad(): void {
         if (this.lastUserId !== null) {
+            this.load(this.lastUserId, this.selectedCategory());
+        }
+    }
+
+    /** Bypasses the cache and forces a network fetch for the current parameters. */
+    forceLoad(): void {
+        if (this.lastUserId !== null) {
+            this.invalidateUser(this.lastUserId);
+            this.inflightKey = null;
             this.load(this.lastUserId, this.selectedCategory());
         }
     }

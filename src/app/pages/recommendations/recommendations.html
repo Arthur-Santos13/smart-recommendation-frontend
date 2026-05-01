@@ -21,6 +21,14 @@
     </div>
     }
 
+    @if (hasUser && state.pendingRefresh() && state.recommendations().length > 0) {
+    <div class="rec-refresh-banner">
+        <span class="rec-refresh-banner__text">✨ Your activity has been updated — new recommendations may be
+            available.</span>
+        <button class="rec-refresh-banner__btn" (click)="state.forceLoad()">Refresh</button>
+    </div>
+    }
+
     @if (!hasUser) {
     <div class="rec-empty">
         <span class="rec-empty__icon">👤</span>

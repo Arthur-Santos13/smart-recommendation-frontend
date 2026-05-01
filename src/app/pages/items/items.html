@@ -1,7 +1,10 @@
 <section class="items-page">
     <div class="page-header">
-        <h2 class="page-header__title">Browse Items</h2>
-        <p class="page-header__subtitle">Explore all available content</p>
+        <div>
+            <h2 class="page-header__title">Browse Items</h2>
+            <p class="page-header__subtitle">Explore all available content</p>
+        </div>
+        <button class="btn btn--primary" (click)="openCreateModal()">+ New Item</button>
     </div>
 
     <!-- Toolbar: category filter + sort -->
@@ -62,9 +65,24 @@
     } @else {
     <div class="items-grid">
         @for (item of sortedItems(); track item.id) {
-        <article class="item-card" (click)="onItemClick(item.id)">
-            <div class="item-card__thumb">
-                <span class="item-card__category-badge">{{ categoryLabel(item.category) }}</span>
+        <article class="item-card" [class.item-card--interacted]="interactedItemId() === item.id"
+            (click)="onItemClick(item.id)">
+            <div class="item-card__thumb" [class]="'item-card__thumb item-card__thumb--' + item.category">
+                <div class="item-card__thumb-visual">
+                    <span class="item-card__thumb-icon">{{ categoryIcon(item.category) }}</span>
+                </div>
+                <div class="item-card__thumb-bar">
+                    <span class="item-card__category-badge">{{ categoryLabel(item.category) }}</span>
+                    @if (interactedItemId() === item.id) {
+                    <span class="item-card__interacted-badge">✓ Saved</span>
+                    }
+                    <div class="item-card__actions">
+                        <button class="item-card__action-btn item-card__action-btn--edit" title="Edit"
+                            (click)="openEditModal(item, $event)">✏️</button>
+                        <button class="item-card__action-btn item-card__action-btn--delete" title="Delete"
+                            (click)="openDeleteConfirm(item, $event)">🗑️</button>
+                    </div>
+                </div>
             </div>
             <div class="item-card__body">
                 <h3 class="item-card__title">{{ item.title }}</h3>
@@ -94,3 +112,77 @@
     </div>
     }
 </section>
+
+<!-- ── Create / Edit Modal ─────────────────────────────────────────────────── -->
+@if (showCreateModal() || showEditModal()) {
+<div class="modal-overlay" (click)="closeModals()">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal__header">
+            <h3 class="modal__title">{{ showCreateModal() ? 'New Item' : 'Edit Item' }}</h3>
+            <button class="modal__close" (click)="closeModals()">✕</button>
+        </div>
+        <div class="modal__body">
+            @if (modalError()) {
+            <p class="modal__error">{{ modalError() }}</p>
+            }
+            <div class="form-field">
+                <label class="form-field__label">Title *</label>
+                <input class="form-field__input" type="text" placeholder="Item title" [ngModel]="itemForm().title"
+                    (ngModelChange)="updateForm('title', $event)" />
+            </div>
+            <div class="form-field">
+                <label class="form-field__label">Description</label>
+                <textarea class="form-field__input form-field__input--textarea" rows="3"
+                    placeholder="Optional description" [ngModel]="itemForm().description"
+                    (ngModelChange)="updateForm('description', $event)"></textarea>
+            </div>
+            <div class="form-field">
+                <label class="form-field__label">Category *</label>
+                <select class="form-field__input" [ngModel]="itemForm().category"
+                    (ngModelChange)="updateForm('category', $event)">
+                    @for (cat of itemCategories; track cat.value) {
+                    <option [value]="cat.value">{{ cat.label }}</option>
+                    }
+                </select>
+            </div>
+            <div class="form-field">
+                <label class="form-field__label">Tags</label>
+                <input class="form-field__input" type="text" placeholder="Comma-separated tags"
+                    [ngModel]="itemForm().tags" (ngModelChange)="updateForm('tags', $event)" />
+            </div>
+        </div>
+        <div class="modal__footer">
+            <button class="btn btn--ghost" (click)="closeModals()" [disabled]="modalSaving()">Cancel</button>
+            <button class="btn btn--primary" (click)="saveItem()" [disabled]="modalSaving()">
+                {{ modalSaving() ? 'Saving…' : 'Save' }}
+            </button>
+        </div>
+    </div>
+</div>
+}
+
+<!-- ── Delete Confirm Modal ────────────────────────────────────────────────── -->
+@if (showDeleteConfirm()) {
+<div class="modal-overlay" (click)="closeModals()">
+    <div class="modal modal--sm" (click)="$event.stopPropagation()">
+        <div class="modal__header">
+            <h3 class="modal__title">Delete Item</h3>
+            <button class="modal__close" (click)="closeModals()">✕</button>
+        </div>
+        <div class="modal__body">
+            @if (modalError()) {
+            <p class="modal__error">{{ modalError() }}</p>
+            }
+            <p class="modal__confirm-text">Are you sure you want to delete
+                <strong>{{ pendingDeleteTitle }}</strong>? This cannot be undone.
+            </p>
+        </div>
+        <div class="modal__footer">
+            <button class="btn btn--ghost" (click)="closeModals()" [disabled]="modalSaving()">Cancel</button>
+            <button class="btn btn--danger" (click)="confirmDelete()" [disabled]="modalSaving()">
+                {{ modalSaving() ? 'Deleting…' : 'Delete' }}
+            </button>
+        </div>
+    </div>
+</div>
+}
