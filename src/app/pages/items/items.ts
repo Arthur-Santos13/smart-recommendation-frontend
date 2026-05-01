@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ItemStateService } from '../../services/item-state.service';
@@ -53,6 +53,16 @@ export class ItemsComponent implements OnInit {
             : list.sort((a, b) => b.title.localeCompare(a.title));
     });
 
+    constructor() {
+        // Fire a 'view' event for every item that appears in the grid.
+        // effect() re-runs whenever state.items() changes, so it tracks views
+        // both on initial load and on every page / category change.
+        effect(() => {
+            const items = this.state.items();
+            items.forEach((item) => this.interactionService.trackEvent(item.id, 'view'));
+        });
+    }
+
     ngOnInit(): void {
         this.route.queryParams.subscribe((params) => {
             const category = (params['category'] as ItemCategory) ?? '';
@@ -88,7 +98,6 @@ export class ItemsComponent implements OnInit {
 
     onItemClick(itemId: string): void {
         this.interactionService.trackEvent(itemId, 'click');
-        // Also fire view events when loading items (moved to state.load callback implicitly)
     }
 
     retryLoad(): void {
