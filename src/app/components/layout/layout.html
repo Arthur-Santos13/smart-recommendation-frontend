@@ -1,0 +1,20 @@
+<div class="shell">
+    <header class="header">
+        <div class="header__inner">
+            <a routerLink="/home" class="header__brand">
+                <span class="header__brand-icon">⚡</span>
+                <span class="header__brand-name">SmartRec</span>
+            </a>
+            <nav class="header__nav">
+                <a routerLink="/home" routerLinkActive="header__nav-link--active" class="header__nav-link">Home</a>
+                <a routerLink="/items" routerLinkActive="header__nav-link--active" class="header__nav-link">Items</a>
+                <a routerLink="/recommendations" routerLinkActive="header__nav-link--active"
+                    class="header__nav-link">Recommendations</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <router-outlet />
+    </main>
+</div>
