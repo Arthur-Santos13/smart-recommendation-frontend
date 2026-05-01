@@ -213,6 +213,21 @@
 }
 
 // ─── Skeleton ────────────────────────────────────────────────────────────────
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+$shimmer-gradient: linear-gradient(90deg,
+        var(--color-surface) 25%,
+        var(--color-surface-2) 50%,
+        var(--color-surface) 75%);
+
 .items-skeleton {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -221,24 +236,53 @@
 }
 
 .skeleton-card {
-    height: 220px;
-    background: linear-gradient(90deg,
-            var(--color-surface) 25%,
-            var(--color-surface-2) 50%,
-            var(--color-surface) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.4s infinite;
-    border-radius: var(--radius-lg);
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
-}
+    border-radius: var(--radius-lg);
+    overflow: hidden;
 
-@keyframes shimmer {
-    0% {
-        background-position: 200% 0;
+    &__thumb {
+        height: 140px;
+        background: $shimmer-gradient;
+        background-size: 200% 100%;
+        animation: shimmer 1.4s infinite;
     }
 
-    100% {
-        background-position: -200% 0;
+    &__body {
+        padding: var(--spacing-md);
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    &__badge {
+        width: 72px;
+        height: 18px;
+        border-radius: var(--radius-sm);
+        background: $shimmer-gradient;
+        background-size: 200% 100%;
+        animation: shimmer 1.4s infinite;
+    }
+
+    &__line {
+        height: 13px;
+        border-radius: 4px;
+        background: $shimmer-gradient;
+        background-size: 200% 100%;
+        animation: shimmer 1.4s infinite;
+
+        &--title {
+            width: 85%;
+            height: 16px;
+        }
+
+        &--desc {
+            width: 100%;
+        }
+
+        &--short {
+            width: 60%;
+        }
     }
 }
 

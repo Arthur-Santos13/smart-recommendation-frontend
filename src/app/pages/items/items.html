@@ -26,7 +26,15 @@
     @if (loading()) {
     <div class="items-skeleton">
         @for (n of [1,2,3,4,5,6,7,8,9,10,11,12]; track n) {
-        <div class="skeleton-card"></div>
+        <div class="skeleton-card">
+            <div class="skeleton-card__thumb"></div>
+            <div class="skeleton-card__body">
+                <div class="skeleton-card__badge"></div>
+                <div class="skeleton-card__line skeleton-card__line--title"></div>
+                <div class="skeleton-card__line skeleton-card__line--desc"></div>
+                <div class="skeleton-card__line skeleton-card__line--desc skeleton-card__line--short"></div>
+            </div>
+        </div>
         }
     </div>
     } @else if (error()) {
