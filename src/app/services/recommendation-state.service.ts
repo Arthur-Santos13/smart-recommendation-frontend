@@ -25,6 +25,7 @@ export class RecommendationStateService {
 
     // ── Cache ─────────────────────────────────────────────────────────────────
     private readonly cache = new Map<string, CacheEntry>();
+    private inflightKey: string | null = null;
 
     private cacheKey(userId: string, category: ItemCategory | ''): string {
         return `${userId}:${category}`;
@@ -58,6 +59,11 @@ export class RecommendationStateService {
         this.lastUserId = userId;
         this.selectedCategory.set(category);
 
+        const key = this.cacheKey(userId, category);
+
+        // Dedup: skip if an identical request is already in-flight
+        if (this.inflightKey === key) return;
+
         const cached = this.getCached(userId, category);
         if (cached) {
             this.recommendations.set(cached.recommendations);
@@ -69,6 +75,7 @@ export class RecommendationStateService {
 
         this.loading.set(true);
         this.error.set(null);
+        this.inflightKey = key;
 
         this.recService
             .getForUser(userId, { top_n: 20, ...(category ? { category } : {}) })
@@ -78,10 +85,12 @@ export class RecommendationStateService {
                     this.recommendations.set(res.recommendations);
                     this.total.set(res.total);
                     this.loading.set(false);
+                    this.inflightKey = null;
                 },
                 error: (err) => {
                     this.error.set(err.message ?? 'Failed to load recommendations.');
                     this.loading.set(false);
+                    this.inflightKey = null;
                 },
             });
     }

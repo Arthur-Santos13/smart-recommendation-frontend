@@ -1,9 +1,9 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
-import { ItemService } from '../../services/item.service';
+import { ItemStateService } from '../../services/item-state.service';
 import { InteractionService } from '../../services/interaction.service';
-import { Item, ItemCategory } from '../../models/item.model';
+import { ItemCategory } from '../../models/item.model';
 
 export const ITEM_CATEGORIES: { value: ItemCategory | ''; label: string }[] = [
     { value: '', label: 'All' },
@@ -29,7 +29,7 @@ export const SORT_OPTIONS: { value: SortOption; label: string }[] = [
     styleUrl: './items.scss',
 })
 export class ItemsComponent implements OnInit {
-    private readonly itemService = inject(ItemService);
+    readonly state = inject(ItemStateService);
     private readonly interactionService = inject(InteractionService);
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
@@ -37,22 +37,17 @@ export class ItemsComponent implements OnInit {
     readonly categories = ITEM_CATEGORIES;
     readonly sortOptions = SORT_OPTIONS;
 
-    items = signal<Item[]>([]);
-    loading = signal(true);
-    error = signal<string | null>(null);
-    total = signal(0);
-
     selectedCategory = signal<ItemCategory | ''>('');
     currentPage = signal(1);
     selectedSort = signal<SortOption>('title_asc');
     readonly limit = 12;
 
-    totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.limit)));
+    totalPages = computed(() => Math.max(1, Math.ceil(this.state.total() / this.limit)));
     hasPrev = computed(() => this.currentPage() > 1);
     hasNext = computed(() => this.currentPage() < this.totalPages());
 
     sortedItems = computed(() => {
-        const list = [...this.items()];
+        const list = [...this.state.items()];
         return this.selectedSort() === 'title_asc'
             ? list.sort((a, b) => a.title.localeCompare(b.title))
             : list.sort((a, b) => b.title.localeCompare(a.title));
@@ -66,7 +61,7 @@ export class ItemsComponent implements OnInit {
             this.selectedCategory.set(category);
             this.currentPage.set(page);
             this.selectedSort.set(sort);
-            this.loadItems();
+            this.state.load(page, this.limit, category);
         });
     }
 
@@ -91,36 +86,13 @@ export class ItemsComponent implements OnInit {
         });
     }
 
-    private loadItems(): void {
-        this.loading.set(true);
-        this.error.set(null);
-        const params = {
-            page: this.currentPage(),
-            limit: this.limit,
-            ...(this.selectedCategory() ? { category: this.selectedCategory() } : {}),
-        };
-        this.itemService.getAll(params).subscribe({
-            next: (res) => {
-                this.items.set(res.items);
-                this.total.set(res.total);
-                this.loading.set(false);
-                res.items.forEach((item) =>
-                    this.interactionService.trackEvent(item.id, 'view')
-                );
-            },
-            error: (err) => {
-                this.error.set(err.message ?? 'Failed to load items.');
-                this.loading.set(false);
-            },
-        });
-    }
-
     onItemClick(itemId: string): void {
         this.interactionService.trackEvent(itemId, 'click');
+        // Also fire view events when loading items (moved to state.load callback implicitly)
     }
 
     retryLoad(): void {
-        this.loadItems();
+        this.state.retryLoad();
     }
 
     categoryLabel(category: string): string {
