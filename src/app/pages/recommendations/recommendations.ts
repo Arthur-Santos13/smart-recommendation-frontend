@@ -83,6 +83,11 @@ export class RecommendationsComponent implements OnInit {
         return Math.round(score * 100);
     }
 
+    retryLoad(): void {
+        const userId = this.session.getUserId();
+        if (userId) this.loadRecommendations(userId);
+    }
+
     categoryLabel(category: string): string {
         return category.charAt(0).toUpperCase() + category.slice(1);
     }
