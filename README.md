@@ -97,9 +97,10 @@ DELETE /…      → api.delete<T>(path)
 Base URL is read from `environment.apiBaseUrl` (`http://localhost:8000/api/v1` by default).
 
 ### `UserSessionService`
-Persists the active user ID in `localStorage` under the key `smart_rec_user_id`.
+Persists the active user ID in `localStorage` under the key `smart_rec_user_id`. Exposes a reactive `userId` signal so any component can respond automatically when the session changes.
 
 ```typescript
+userId: Signal<string | null>  // reactive — updates on every set/clear
 getUserId(): string | null
 setUserId(id: string): void
 clearUserId(): void
@@ -400,6 +401,6 @@ All 14 phases of the frontend roadmap are complete.
 - [x] **Phase 9 — UX & Feedback**: Loading skeletons, error banners with retry, empty states with CTAs, card interaction highlight (1.5 s pulse), per-category gradient thumbnails with emoji icons
 - [x] **Phase 10 — State & Optimisations**: `computed()` signals for derived values, `effect()` for side-effect tracking, `invalidateAll()` on `ItemStateService`, `forceLoad()` / `retryLoad()` on `RecommendationStateService`
 - [x] **Phase 11 — Full Integration**: Interaction → recommendation feedback loop wired end-to-end; `invalidateUser()` on success; `pendingRefresh` signal; refresh banner on recommendations page; inline CRUD modals for items and users
-- [x] **Phase 12 — Tests**: Jasmine unit tests for all services (`UserSessionService`, `ItemStateService`, `RecommendationStateService`, `InteractionService`) and page components (`RecommendationsComponent`, `ItemsComponent`); 73 specs, all passing
+- [x] **Phase 12 — Tests**: Jasmine unit tests for all services (`UserSessionService`, `ItemStateService`, `RecommendationStateService`, `InteractionService`) and page components (`RecommendationsComponent`, `ItemsComponent`); 77 specs, all passing
 - [x] **Phase 13 — Technical README**: Architecture overview, API integration contract, user interaction flow diagram, state management strategy, HTTP error table, data models, test coverage map
 - [x] **Phase 14 — Production Build & Final Documentation**: Production `angular.json` configuration with critical CSS inlining and font inlining, `.browserslistrc` for modern-only targets, two-stage Docker image with nginx, bundle budgets, `build:prod` / `build:validate` scripts, final README with roadmap checklist
