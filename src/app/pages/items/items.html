@@ -32,7 +32,7 @@
     } @else {
     <div class="items-grid">
         @for (item of items(); track item.id) {
-        <article class="item-card">
+        <article class="item-card" (click)="onItemClick(item.id)">
             <div class="item-card__thumb">
                 <span class="item-card__category-badge">{{ categoryLabel(item.category) }}</span>
             </div>
