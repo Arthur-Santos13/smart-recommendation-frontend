@@ -9,9 +9,9 @@
     top: 0;
     z-index: 100;
     height: var(--header-height);
-    background-color: var(--color-surface);
+    background: linear-gradient(180deg, rgba(11, 12, 20, 0.98) 0%, rgba(11, 12, 20, 0.85) 100%);
+    backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--color-border);
-    box-shadow: var(--shadow-sm);
 
     &__inner {
         display: flex;
@@ -28,9 +28,15 @@
         align-items: center;
         gap: var(--spacing-xs);
         text-decoration: none;
-        font-weight: 700;
-        font-size: 1.25rem;
+        font-weight: 800;
+        font-size: 1.3rem;
+        letter-spacing: -0.02em;
         color: var(--color-primary);
+        transition: opacity 0.2s;
+
+        &:hover {
+            opacity: 0.85;
+        }
     }
 
     &__brand-icon {
@@ -40,21 +46,21 @@
     &__nav {
         display: flex;
         align-items: center;
-        gap: var(--spacing-md);
+        gap: var(--spacing-sm);
     }
 
     &__nav-link {
         text-decoration: none;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         font-weight: 500;
         color: var(--color-text-secondary);
-        padding: var(--spacing-xs) var(--spacing-sm);
+        padding: 0.4rem 0.875rem;
         border-radius: var(--radius-sm);
         transition: color 0.2s, background-color 0.2s;
 
         &:hover {
-            color: var(--color-primary);
-            background-color: var(--color-primary-light);
+            color: var(--color-text);
+            background-color: rgba(255, 255, 255, 0.06);
         }
 
         &--active {

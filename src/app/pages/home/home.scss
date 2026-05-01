@@ -4,23 +4,33 @@
     align-items: center;
     min-height: calc(100vh - var(--header-height));
     padding: var(--spacing-xl);
+    background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(155, 68, 252, 0.18) 0%, transparent 70%),
+        var(--color-bg);
 }
 
 .hero {
     text-align: center;
-    max-width: 600px;
+    max-width: 680px;
 
     &__title {
-        font-size: 3rem;
-        font-weight: 700;
-        color: var(--color-primary);
+        font-size: 3.25rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.15;
+        color: var(--color-text);
         margin-bottom: var(--spacing-sm);
+
+        span {
+            color: var(--color-primary);
+        }
     }
 
     &__subtitle {
-        font-size: 1.25rem;
+        font-size: 1.15rem;
         color: var(--color-text-secondary);
         margin-bottom: var(--spacing-xl);
+        line-height: 1.7;
     }
 
     &__actions {
