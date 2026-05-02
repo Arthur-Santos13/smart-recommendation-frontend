@@ -27,12 +27,12 @@ export class InteractionService {
             event_type: eventType,
         };
         this.api
-            .post<UserEvent>('/user-events/', body)
+            .post<UserEvent>('/events/', body)
             .pipe(catchError(() => of(null)))
             .subscribe(() => this.recState.invalidateUser(userId));
     }
 
     getUserEvents(userId: string): Observable<UserEvent[]> {
-        return this.api.get<UserEvent[]>(`/user-events/user/${userId}`);
+        return this.api.get<UserEvent[]>(`/events/user/${userId}`);
     }
 }
