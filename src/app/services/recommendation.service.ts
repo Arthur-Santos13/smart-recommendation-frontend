@@ -11,6 +11,6 @@ export class RecommendationService {
         const cleanParams: Record<string, string | number | boolean> = {};
         if (params?.top_n != null) cleanParams['top_n'] = params.top_n;
         if (params?.category) cleanParams['category'] = params.category;
-        return this.api.get<RecommendationResponse>(`/recommendations/${userId}`, cleanParams);
+        return this.api.get<RecommendationResponse>(`/recommendations/hybrid/${userId}`, cleanParams);
     }
 }
