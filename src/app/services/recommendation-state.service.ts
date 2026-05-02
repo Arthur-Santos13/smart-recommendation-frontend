@@ -90,7 +90,6 @@ export class RecommendationStateService {
                     this.recommendations.set(res.recommendations);
                     this.total.set(res.total);
                     this.loading.set(false);
-                    this.pendingRefresh.set(false);
                     this.inflightKey = null;
                 },
                 error: (err) => {
@@ -110,9 +109,36 @@ export class RecommendationStateService {
     /** Bypasses the cache and forces a network fetch for the current parameters. */
     forceLoad(): void {
         if (this.lastUserId !== null) {
-            this.invalidateUser(this.lastUserId);
+            // Clear cache directly without setting pendingRefresh = true again
+            const prefix = `${this.lastUserId}:`;
+            for (const key of this.cache.keys()) {
+                if (key.startsWith(prefix)) this.cache.delete(key);
+            }
             this.inflightKey = null;
-            this.load(this.lastUserId, this.selectedCategory());
+            const userId = this.lastUserId;
+            const category = this.selectedCategory();
+            const key = this.cacheKey(userId, category);
+            this.loading.set(true);
+            this.error.set(null);
+            this.inflightKey = key;
+            this.recService
+                .getForUser(userId, { top_n: 20, ...(category ? { category } : {}) })
+                .subscribe({
+                    next: (res) => {
+                        this.setCached(userId, category, res);
+                        this.recommendations.set(res.recommendations);
+                        this.total.set(res.total);
+                        this.loading.set(false);
+                        this.pendingRefresh.set(false);
+                        this.inflightKey = null;
+                    },
+                    error: (err) => {
+                        this.error.set(err.message ?? 'Failed to load recommendations.');
+                        this.loading.set(false);
+                        this.pendingRefresh.set(false);
+                        this.inflightKey = null;
+                    },
+                });
         }
     }
 }

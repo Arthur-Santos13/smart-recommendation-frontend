@@ -1,8 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { UserSessionService } from '../../services/user-session.service';
 import { RecommendationStateService } from '../../services/recommendation-state.service';
+import { AdminService } from '../../services/admin.service';
 import { ItemCategory } from '../../models/item.model';
 
 export const REC_CATEGORIES: { value: ItemCategory | ''; label: string }[] = [
@@ -24,11 +25,13 @@ export const REC_CATEGORIES: { value: ItemCategory | ''; label: string }[] = [
 export class RecommendationsComponent implements OnInit {
     readonly state = inject(RecommendationStateService);
     private readonly session = inject(UserSessionService);
+    private readonly admin = inject(AdminService);
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
 
     readonly categories = REC_CATEGORIES;
     hasUser = false;
+    retraining = signal(false);
 
     ngOnInit(): void {
         const userId = this.session.getUserId();
@@ -48,6 +51,27 @@ export class RecommendationsComponent implements OnInit {
         this.router.navigate([], {
             queryParams: { category: category || null },
             queryParamsHandling: 'merge',
+        });
+    }
+
+    /**
+     * Triggers a server-side model retraining (POST /admin/retrain) and then
+     * forces a fresh fetch of recommendations. Called from the pendingRefresh banner.
+     */
+    retrain(): void {
+        if (this.retraining()) return;
+        this.retraining.set(true);
+        this.admin.retrain().subscribe({
+            next: () => {
+                this.state.forceLoad();
+                this.retraining.set(false);
+            },
+            error: () => {
+                // Retraining failed — still force-refresh so the user gets the latest
+                // results from the current model.
+                this.state.forceLoad();
+                this.retraining.set(false);
+            },
         });
     }
 

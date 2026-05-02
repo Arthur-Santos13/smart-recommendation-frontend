@@ -39,12 +39,12 @@ describe('InteractionService', () => {
         expect(service).toBeTruthy(); // no HTTP request was made
     });
 
-    it('trackEvent() posts to /user-events/ with correct payload', fakeAsync(() => {
+    it('trackEvent() posts to /events/ with correct payload', fakeAsync(() => {
         sessionService.setUserId('user-1');
 
         service.trackEvent('item-42', 'click');
 
-        const req = httpMock.expectOne((r) => r.url.includes('/user-events/'));
+        const req = httpMock.expectOne((r) => r.url.includes('/events/'));
         expect(req.request.method).toBe('POST');
         expect(req.request.body).toEqual({
             user_id: 'user-1',
@@ -62,7 +62,7 @@ describe('InteractionService', () => {
 
         service.trackEvent('item-1', 'view');
 
-        httpMock.expectOne((r) => r.url.includes('/user-events/')).flush({});
+        httpMock.expectOne((r) => r.url.includes('/events/')).flush({});
         tick();
 
         expect(recState.invalidateUser).toHaveBeenCalledWith('user-1');
@@ -75,7 +75,7 @@ describe('InteractionService', () => {
         service.trackEvent('item-1', 'click');
 
         httpMock
-            .expectOne((r) => r.url.includes('/user-events/'))
+            .expectOne((r) => r.url.includes('/events/'))
             .flush('Error', { status: 500, statusText: 'Server Error' });
         tick();
 
@@ -87,13 +87,13 @@ describe('InteractionService', () => {
         sessionService.setUserId('user-1');
 
         service.trackEvent('item-1', 'view');
-        const viewReq = httpMock.expectOne((r) => r.url.includes('/user-events/'));
+        const viewReq = httpMock.expectOne((r) => r.url.includes('/events/'));
         expect(viewReq.request.body.event_type).toBe('view');
         viewReq.flush({});
         tick();
 
         service.trackEvent('item-2', 'click');
-        const clickReq = httpMock.expectOne((r) => r.url.includes('/user-events/'));
+        const clickReq = httpMock.expectOne((r) => r.url.includes('/events/'));
         expect(clickReq.request.body.event_type).toBe('click');
         clickReq.flush({});
         tick();

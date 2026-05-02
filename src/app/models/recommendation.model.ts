@@ -1,5 +1,6 @@
 export interface RecommendationItem {
     item_id: string;
+    title: string;
     score: number;
     reason: string;
     category: string;

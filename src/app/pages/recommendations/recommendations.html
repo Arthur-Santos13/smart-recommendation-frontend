@@ -25,7 +25,9 @@
     <div class="rec-refresh-banner">
         <span class="rec-refresh-banner__text">✨ Your activity has been updated — new recommendations may be
             available.</span>
-        <button class="rec-refresh-banner__btn" (click)="state.forceLoad()">Refresh</button>
+        <button class="rec-refresh-banner__btn" (click)="retrain()" [disabled]="retraining()">
+            @if (retraining()) { Training… } @else { Retrain & Refresh }
+        </button>
     </div>
     }
 
@@ -82,6 +84,7 @@
         <li class="rec-card">
             <div class="rec-card__left">
                 <span class="rec-card__badge">{{ categoryLabel(item.category) }}</span>
+                <p class="rec-card__title">{{ item.title }}</p>
                 <div class="rec-card__explanation"
                     [class.rec-card__explanation--similar]="reasonTypeOf(item.reason) === 'similar'"
                     [class.rec-card__explanation--activity]="reasonTypeOf(item.reason) === 'activity'">
